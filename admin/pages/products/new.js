@@ -1,10 +1,13 @@
 import Layout from "@/components/Layout";
+import { useRouter } from "next/router";
 import { useState } from "react";
 
 export default function NewProduct() {
     const [name, setName] = useState('')
     const [description, setDescription] = useState('')
-    const [price, setPrice] = useState(null)
+    const [price, setPrice] = useState(0)
+    const router = useRouter()
+
     const handleSubmit = async (e) => {
         e.preventDefault()
         const data = { name, description, price }
@@ -15,6 +18,10 @@ export default function NewProduct() {
             },
             body: JSON.stringify(data),
         })
+        setName('')
+        setDescription('')
+        setPrice(0)
+        router.push("/products")
     }
     return (
         <Layout>

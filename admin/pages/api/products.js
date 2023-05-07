@@ -26,4 +26,8 @@ export default async function handeler(req, res) {
         const ProductDoc = await Product.updateOne({ _id }, { name, price, description })
         res.status(200).json(ProductDoc)
     }
+    else if (method === 'DELETE') {
+        const ProductDoc = await Product.deleteOne({ _id: req.query.id })
+        res.status(200).json(ProductDoc)
+    }
 }

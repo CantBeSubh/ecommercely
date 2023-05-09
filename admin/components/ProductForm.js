@@ -1,11 +1,15 @@
 import { useRouter } from "next/router";
 import { useState } from "react";
+import { ScaleLoader } from "react-spinners";
+import { ReactSortable } from "react-sortablejs";
+
 
 export default function ProductForm({ name: productName, description: productDescription, price: productPrice, _id, images: productImages }) {
     const [name, setName] = useState(productName || '')
     const [description, setDescription] = useState(productDescription || '')
     const [price, setPrice] = useState(productPrice || 0)
     const [images, setImages] = useState(productImages || [])
+    const [isUploading, setIsUploading] = useState(false)
     const router = useRouter()
 
     const handleSubmit = async (e) => {
@@ -41,6 +45,8 @@ export default function ProductForm({ name: productName, description: productDes
 
     const handleUpload = async (e) => {
         const files = e.target?.files
+        if (!files) return;
+        setIsUploading(true)
         const data = new FormData()
         for (const file of files) {
             data.append('file', file)
@@ -51,6 +57,7 @@ export default function ProductForm({ name: productName, description: productDes
         })
         const images = await res.json()
         setImages(oldImages => [...oldImages, ...images.links])
+        setIsUploading(false)
     }
 
     return (
@@ -65,19 +72,34 @@ export default function ProductForm({ name: productName, description: productDes
             <label>Product Image</label>
             <div className="mb-2">
                 <div className="flex gap-2 flex-wrap">
-                    {images?.map((image, index) => (
-                        <div key={index} className="relative w-24 h-24">
-                            <img src={image} className="w-full h-full object-cover rounded-lg" />
-                            <button
-                                className="absolute top-0 right-0 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center"
-                                onClick={() => setImages(oldImages => oldImages.filter((_, i) => i !== index))}
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 text-white">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
+                    <ReactSortable
+                        list={images}
+                        setList={setImages}
+                        animation={200}
+                        delayOnTouchStart={true}
+                        delay={2}
+                        className="flex gap-2 flex-wrap cursor-grab active:cursor-grabbing"
+                    >
+
+                        {images?.map((image, index) => (
+                            <div key={index} className="relative w-24 h-24">
+                                <img src={image} className="w-full h-full object-cover rounded-lg" />
+                                <button
+                                    className="absolute top-0 right-0 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center"
+                                    onClick={() => setImages(oldImages => oldImages.filter((_, i) => i !== index))}
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 text-white">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                        ))}
+                    </ReactSortable>
+                    {isUploading &&
+                        <div className="w-24 h-24 flex items-center justify-center bg-gray-200 rounded-lg animate-pulse">
+                            <ScaleLoader color="#1f2937" />
                         </div>
-                    ))}
+                    }
                     <label className="cursor-pointer w-24 h-24 text-center flex items-center flex-col justify-center gap-1 text-gray-500 rounded-lg bg-gray-200">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />

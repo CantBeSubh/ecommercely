@@ -22,11 +22,11 @@ export default function Products() {
                         <th className="px-4 py-2">Name</th>
                         <th className="px-4 py-2">Description</th>
                         <th className="px-4 py-2">Price</th>
-                        <th className="px-4 py-2">Modify</th>
+                        <th className="px-4 py-2">Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {products.map(product => (
+                    {products?.map(product => (
                         <tr key={product._id}>
                             <td className="border px-4 py-2">{product.name}</td>
                             <td className="border px-4 py-2">{product.description}</td>

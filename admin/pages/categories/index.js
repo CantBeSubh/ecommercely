@@ -87,7 +87,7 @@ export default function Categories() {
             </form>
 
             <table className="table-auto">
-                <thead>a
+                <thead>
                     <tr>
                         <th className="px-4 py-2">Name</th>
                         <th className="px-4 py-2">Parent Category</th>

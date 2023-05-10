@@ -7,8 +7,8 @@ export default async function handeler(req, res) {
     const { method } = req;
 
     if (method === 'POST') {
-        const { name, price, description, images } = req.body;
-        const ProductDoc = await Product.create({ name, price, description, images })
+        const { name, price, description, category, images } = req.body;
+        const ProductDoc = await Product.create({ name, price, description, category, images })
         res.status(200).json(ProductDoc)
     }
     else if (method === 'GET') {
@@ -22,8 +22,8 @@ export default async function handeler(req, res) {
         }
     }
     else if (method === 'PUT') {
-        const { name, price, description, _id, images } = req.body;
-        const ProductDoc = await Product.updateOne({ _id }, { name, price, description, images })
+        const { name, price, description, _id, category, images } = req.body;
+        const ProductDoc = await Product.updateOne({ _id }, { name, price, description, category, images })
         res.status(200).json(ProductDoc)
     }
     else if (method === 'DELETE') {

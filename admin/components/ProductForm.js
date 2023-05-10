@@ -1,20 +1,29 @@
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ScaleLoader } from "react-spinners";
 import { ReactSortable } from "react-sortablejs";
 
 
-export default function ProductForm({ name: productName, description: productDescription, price: productPrice, _id, images: productImages }) {
+export default function ProductForm({ name: productName, description: productDescription, price: productPrice, _id, images: productImages, category: productCategory }) {
     const [name, setName] = useState(productName || '')
     const [description, setDescription] = useState(productDescription || '')
     const [price, setPrice] = useState(productPrice || 0)
     const [images, setImages] = useState(productImages || [])
     const [isUploading, setIsUploading] = useState(false)
+    const [categories, setCategories] = useState([])
+    const [category, setCategory] = useState(productCategory || '')
     const router = useRouter()
+
+
+    useEffect(() => {
+        fetch('/api/categories')
+            .then(res => res.json())
+            .then(data => setCategories(data))
+    }, [])
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-        const data = { name, description, price, images }
+        const data = { name, description, price, images, category }
         if (_id) {
             //update the product
             console.log("Updating the product")
@@ -40,6 +49,8 @@ export default function ProductForm({ name: productName, description: productDes
         setName('')
         setDescription('')
         setPrice(0)
+        setImages([])
+        setCategory('')
         router.push("/products")
     }
 
@@ -69,6 +80,13 @@ export default function ProductForm({ name: productName, description: productDes
                 value={name}
                 onChange={(e) => setName(e.target.value)}
             />
+            <label>Category</label>
+            <select value={category} onChange={e => setCategory(e.target.value)}>
+                <option value="">Uncategorized</option>
+                {categories?.map(category => (
+                    <option key={category._id} value={category._id}>{category.name}</option>
+                ))}
+            </select>
             <label>Product Image</label>
             <div className="mb-2">
                 <div className="flex gap-2 flex-wrap">

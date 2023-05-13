@@ -10,8 +10,8 @@ export default async function handeler(req, res) {
         // const { name, price, description, images } = req.body;
         // const ProductDoc = await Product.create({ name, price, description, images })
         // res.status(200).json(ProductDoc)
-        const { name, parentCat } = req.body;
-        const CategoryDoc = await Category.create({ name, parent: parentCat?.length > 0 ? parentCat : null })
+        const { name, parentCat, properties } = req.body;
+        const CategoryDoc = await Category.create({ name, parent: parentCat?.length > 0 ? parentCat : null, properties })
         res.status(200).json(CategoryDoc)
     }
     else if (method === 'GET') {
@@ -25,8 +25,8 @@ export default async function handeler(req, res) {
         }
     }
     else if (method === 'PUT') {
-        const { name, parentCat, _id } = req.body;
-        const CategoryDoc = await Category.updateOne({ _id }, { name, parent: parentCat?.length > 0 ? parentCat : null })
+        const { name, parentCat, _id, properties } = req.body;
+        const CategoryDoc = await Category.updateOne({ _id }, { name, parent: parentCat?.length > 0 ? parentCat : null, properties })
         res.status(200).json(CategoryDoc)
     }
     else if (method === 'DELETE') {

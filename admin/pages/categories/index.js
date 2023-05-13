@@ -17,16 +17,17 @@ export default function Categories() {
     }
     const handleSubmit = async (e) => {
         e.preventDefault()
+        const data = { name, parentCat, properties: properites.map(p => ({ name: p.name, values: p.values.split(",") })) }
+
         if (editCat) {
+            data._id = editCat._id
             await fetch('/api/categories', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ name, parentCat, _id: editCat._id })
+                body: JSON.stringify(data)
             })
-            setName('')
-            setParentCat('')
             setEditCat(null)
         }
         else {
@@ -35,13 +36,12 @@ export default function Categories() {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ name, parentCat })
+                body: JSON.stringify(data)
             })
-
-            const data = await res.json()
-            setName('')
-            setParentCat('')
         }
+        setName('')
+        setParentCat('')
+        setProperties([])
         getCategories()
     }
 
@@ -53,6 +53,7 @@ export default function Categories() {
         setEditCat(category)
         setName(category.name)
         setParentCat(category.parent?._id || '')
+        setProperties(category.properties.map(p => ({ name: p.name, values: p.values.join(",") }) || []))
     }
 
     const deleteCategory = async (category) => {
@@ -169,6 +170,7 @@ export default function Categories() {
                             setEditCat(null)
                             setName('')
                             setParentCat('')
+                            setProperties([])
                         }}
                     >
                         Cancel

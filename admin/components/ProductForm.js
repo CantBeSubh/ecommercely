@@ -4,7 +4,16 @@ import { ScaleLoader } from "react-spinners";
 import { ReactSortable } from "react-sortablejs";
 
 
-export default function ProductForm({ name: productName, description: productDescription, price: productPrice, _id, images: productImages, category: productCategory }) {
+export default function ProductForm(
+    {
+        name: productName,
+        description: productDescription,
+        price: productPrice,
+        _id,
+        images: productImages,
+        category: productCategory,
+        properties: assignedProperties
+    }) {
     const [name, setName] = useState(productName || '')
     const [description, setDescription] = useState(productDescription || '')
     const [price, setPrice] = useState(productPrice || 0)
@@ -12,6 +21,9 @@ export default function ProductForm({ name: productName, description: productDes
     const [isUploading, setIsUploading] = useState(false)
     const [categories, setCategories] = useState([])
     const [category, setCategory] = useState(productCategory || '')
+    const [properties, setProperties] = useState([])
+    const [productProperties, setProductProperties] = useState(assignedProperties || {})
+
     const router = useRouter()
 
 
@@ -23,7 +35,7 @@ export default function ProductForm({ name: productName, description: productDes
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-        const data = { name, description, price, images, category }
+        const data = { name, description, price, images, category, properties: productProperties }
         if (_id) {
             //update the product
             console.log("Updating the product")
@@ -71,6 +83,19 @@ export default function ProductForm({ name: productName, description: productDes
         setIsUploading(false)
     }
 
+    useEffect(() => {
+        setProperties([])
+        if (!categories?.length > 0) return;
+        let cat = categories.find(({ _id }) => _id === category)
+        if (!cat) return;
+        setProperties([...cat.properties])
+        while (cat?.parent?._id) {
+            const parentCat = categories.find(({ _id }) => _id === cat?.parent?._id)
+            setProperties(old => [...old, ...parentCat.properties])
+            cat = parentCat
+        }
+    }, [category, categories])
+
     return (
         <form onSubmit={handleSubmit}>
             <label>Product Name</label>
@@ -83,10 +108,24 @@ export default function ProductForm({ name: productName, description: productDes
             <label>Category</label>
             <select value={category} onChange={e => setCategory(e.target.value)}>
                 <option value="">Uncategorized</option>
-                {categories?.map(category => (
-                    <option key={category._id} value={category._id}>{category.name}</option>
+                {categories?.map(cat => (
+                    <option key={cat._id} value={cat._id}>{cat.name}</option>
                 ))}
             </select>
+            {properties?.length > 0 && properties.map(p => (
+                <div key={p._id} className="flex gap-1">
+                    <div>{p.name}</div>
+                    <select
+                        value={productProperties[p.name] || ''}
+                        onChange={e => setProductProperties(old => ({ ...old, [p.name]: e.target.value }))}
+                    >
+                        {p.values.map(v => (
+                            <option value={v}>{v}</option>
+                        ))}
+                    </select>
+                </div>
+            ))}
+
             <label>Product Image</label>
             <div className="mb-2">
                 <div className="flex gap-2 flex-wrap">

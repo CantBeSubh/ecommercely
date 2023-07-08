@@ -1,11 +1,11 @@
 import clientPromise from '@/lib/mongodb'
 import { MongoDBAdapter } from '@next-auth/mongodb-adapter'
-import NextAuth from 'next-auth'
+import NextAuth, { getServerSession } from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
 
 const adminEmails = ["subhranshupati0412@gmail.com"]
 
-export default NextAuth({
+const options = {
     providers: [
         GoogleProvider({
             clientId: process.env.GOOGLE_ID,
@@ -14,12 +14,14 @@ export default NextAuth({
     ],
     adapter: MongoDBAdapter(clientPromise),
     callbacks: {
-        session: ({ session }) => {
-            if (adminEmails.includes(session?.user?.email)) return session;
-            else {
-                // alert("You are not authorized to access this page");
-                return null;
-            }
+        signIn: async ({ user, account, profile }) => {
+            if (adminEmails.includes(user?.email)) return true
+            else return false
         }
     }
-})
+}
+export const isAdminRequest = async (req, res) => {
+    const session = await getServerSession(req, res, options);
+    if (!adminEmails.includes(session?.user?.email)) res.status(401).json({ error: "Unauthorized" })
+}
+export default NextAuth(options)
